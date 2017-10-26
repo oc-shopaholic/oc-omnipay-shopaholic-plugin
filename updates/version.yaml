@@ -1,0 +1,4 @@
+1.0.0:
+    - 'Initialize plugin.'
+    - update_table_orders.php
+    - update_table_payment_methods.php

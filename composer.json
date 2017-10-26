@@ -1,0 +1,6 @@
+{
+  "require": {
+    "ignited/laravel-omnipay": "2.*",
+    "omnipay/omnipay": "*"
+  }
+}
