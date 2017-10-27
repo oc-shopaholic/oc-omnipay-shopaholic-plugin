@@ -24,9 +24,9 @@ class UpdateTablePaymentMethods extends Migration
             $obTable->string('gateway_id')->nullable();
             $obTable->string('gateway_currency')->nullable();
             $obTable->string('payment_page')->nullable();
-            $obTable->text('property')->nullable();
-            $obTable->integer('before_status_id')->nullable();
-            $obTable->integer('after_status_id')->nullable();
+            $obTable->text('gateway_property')->nullable();
+            $obTable->integer('before_status_id')->nullable()->default(0);
+            $obTable->integer('after_status_id')->nullable()->default(0);
         });
     }
 
