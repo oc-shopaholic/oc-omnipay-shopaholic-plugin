@@ -101,6 +101,8 @@ class ExtendFieldHandler
                 'emptyOption' => 'lovata.toolbox::lang.field.empty',
             ],
         ]);
+        
+        $this->addGatewayPropertyFields($obWidget->model, $obWidget);
     }
 
     /**
@@ -130,17 +132,8 @@ class ExtendFieldHandler
                 continue;
             }
             
-            if(empty($arValueList) || !is_array($arValueList)) {
+            if(is_array($arValueList)) {
 
-                $obWidget->addTabFields([
-                    'gateway_property['.$sPropertyName.']' => [
-                        'label'       => $sPropertyName,
-                        'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                        'type'        => 'text',
-                        'span'        => 'left',
-                    ],
-                ]);
-            } else {
                 $obWidget->addTabFields([
                     'gateway_property['.$sPropertyName.']' => [
                         'label'       => $sPropertyName,
@@ -148,6 +141,27 @@ class ExtendFieldHandler
                         'type'        => 'dropdown',
                         'span'        => 'left',
                         'options'     => $arValueList,
+                    ],
+                ]);
+            } else if(is_bool($arValueList)) {
+
+                $obWidget->addTabFields([
+                    'gateway_property[' . $sPropertyName . ']' => [
+                        'label'   => $sPropertyName,
+                        'tab'     => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                        'type'    => 'checkbox',
+                        'default' => $arValueList,
+                        'span'    => 'left',
+                    ],
+                ]);
+            } else {
+
+                $obWidget->addTabFields([
+                    'gateway_property[' . $sPropertyName . ']' => [
+                        'label' => $sPropertyName,
+                        'tab'   => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                        'type'  => 'text',
+                        'span'  => 'left',
                     ],
                 ]);
             }

@@ -41,5 +41,23 @@ class PaymentMethodModelHandler
         ]);
         
         $obModel->addJsonable('gateway_property');
+        
+        $obModel->addDynamicMethod('setBeforeStatusIdAttribute', function ($sValue) use ($obModel) {
+            
+            if(empty($sValue)) {
+                $sValue = 0;
+            }
+
+            $obModel->attributes['before_status_id'] = $sValue;
+        });
+        
+        $obModel->addDynamicMethod('setAfterStatusIdAttribute', function ($sValue) use ($obModel) {
+            
+            if(empty($sValue)) {
+                $sValue = 0;
+            }
+
+            $obModel->attributes['after_status_id'] = $sValue;
+        });
     }
 }
