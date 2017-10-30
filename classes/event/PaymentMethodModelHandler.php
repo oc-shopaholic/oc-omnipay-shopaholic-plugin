@@ -34,7 +34,6 @@ class PaymentMethodModelHandler
         $obModel->addFillable([
             'gateway_id',
             'gateway_currency',
-            'payment_page',
             'gateway_property',
             'before_status_id',
             'after_status_id',

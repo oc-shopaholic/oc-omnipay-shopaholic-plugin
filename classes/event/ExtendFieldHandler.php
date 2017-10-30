@@ -52,13 +52,6 @@ class ExtendFieldHandler
         
         //Get order status list
         $arStatusList = Status::lists('name', 'id');
-
-        //Get page list
-        try {
-            $arPageList = Page::getNameList();
-        } catch (\Exception $obException) {
-            $arPageList = [];
-        }
         
         // Add an extra birthday field
         $obWidget->addTabFields([
@@ -91,14 +84,6 @@ class ExtendFieldHandler
                 'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
                 'type'        => 'text',
                 'span'        => 'right',
-            ],
-            'payment_page' => [
-                'label'       => 'lovata.omnipayshopaholic::lang.field.payment_page',
-                'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                'type'        => 'dropdown',
-                'span'        => 'left',
-                'options'     => $arPageList,
-                'emptyOption' => 'lovata.toolbox::lang.field.empty',
             ],
         ]);
         

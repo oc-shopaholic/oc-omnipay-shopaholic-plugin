@@ -23,7 +23,6 @@ class UpdateTablePaymentMethods extends Migration
         {
             $obTable->string('gateway_id')->nullable();
             $obTable->string('gateway_currency')->nullable();
-            $obTable->string('payment_page')->nullable();
             $obTable->text('gateway_property')->nullable();
             $obTable->integer('before_status_id')->nullable()->default(0);
             $obTable->integer('after_status_id')->nullable()->default(0);
@@ -45,7 +44,6 @@ class UpdateTablePaymentMethods extends Migration
             $obTable->dropColumn([
                 'gateway_id',
                 'gateway_currency',
-                'payment_page',
                 'gateway_property',
                 'before_status_id',
                 'after_status_id',

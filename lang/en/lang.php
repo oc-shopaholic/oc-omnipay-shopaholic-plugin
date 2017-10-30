@@ -8,10 +8,9 @@
     ],
     'message'        => [],
     'field' => [
-        'gateway_id' => 'Payment gateway',
+        'gateway_id'       => 'Payment gateway',
         'gateway_currency' => 'Gateway currency',
-        'payment_page' => 'Payment page',
         'before_status_id' => 'Order status before payment',
-        'after_status_id' => 'Order status after payment',
+        'after_status_id'  => 'Order status after payment',
     ],
 ];
