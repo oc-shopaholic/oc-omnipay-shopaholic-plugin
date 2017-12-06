@@ -17,7 +17,7 @@ class OrderPageComponentHandler
      */
     public function subscribe($obEvent)
     {
-        OrderPage::extend(function($obComponent) {
+        OrderPage::extend(function ($obComponent) {
             /** @var OrderPage $obComponent */
             $this->addPaymentGatewayMethods($obComponent);
         });
@@ -29,11 +29,11 @@ class OrderPageComponentHandler
      */
     protected function addPaymentGatewayMethods($obComponent)
     {
-        $obComponent->addDynamicMethod('getPaymentGateway', function() use ($obComponent) {
+        $obComponent->addDynamicMethod('getPaymentGateway', function () use ($obComponent) {
 
             //Get payment object
             $obPaymentMethod = $obComponent->obPaymentMethod;
-            if(empty($obPaymentMethod) || empty($obPaymentMethod->gateway_id)) {
+            if (empty($obPaymentMethod) || empty($obPaymentMethod->gateway_id)) {
                 return null;
             }
 

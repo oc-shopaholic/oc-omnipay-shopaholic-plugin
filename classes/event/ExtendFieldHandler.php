@@ -19,7 +19,7 @@ class ExtendFieldHandler
      */
     public function subscribe($obEvent)
     {
-        $obEvent->listen('backend.form.extendFields', function($obWidget) {
+        $obEvent->listen('backend.form.extendFields', function ($obWidget) {
             $this->extendPaymentMethodFields($obWidget);
         });
     }
@@ -42,17 +42,17 @@ class ExtendFieldHandler
 
         //Get payment gateway list
         $arPaymentGatewayList = [];
-        
+
         $arGatewayList = Omnipay::getFactory()->find();
-        if(!empty($arGatewayList)) {
+        if (!empty($arGatewayList)) {
             foreach ($arGatewayList as $sGatewayName) {
                 $arPaymentGatewayList[$sGatewayName] = $sGatewayName;
             }
         }
-        
+
         //Get order status list
         $arStatusList = Status::lists('name', 'id');
-        
+
         // Add an extra birthday field
         $obWidget->addTabFields([
             'before_status_id' => [
@@ -63,7 +63,7 @@ class ExtendFieldHandler
                 'options'     => $arStatusList,
                 'emptyOption' => 'lovata.toolbox::lang.field.empty',
             ],
-            'after_status_id' => [
+            'after_status_id'  => [
                 'label'       => 'lovata.omnipayshopaholic::lang.field.after_status_id',
                 'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
                 'type'        => 'dropdown',
@@ -71,7 +71,7 @@ class ExtendFieldHandler
                 'options'     => $arStatusList,
                 'emptyOption' => 'lovata.toolbox::lang.field.empty',
             ],
-            'gateway_id' => [
+            'gateway_id'       => [
                 'label'       => 'lovata.omnipayshopaholic::lang.field.gateway_id',
                 'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
                 'type'        => 'dropdown',
@@ -80,58 +80,58 @@ class ExtendFieldHandler
                 'emptyOption' => 'lovata.toolbox::lang.field.empty',
             ],
             'gateway_currency' => [
-                'label'       => 'lovata.omnipayshopaholic::lang.field.gateway_currency',
-                'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                'type'        => 'text',
-                'span'        => 'right',
+                'label' => 'lovata.omnipayshopaholic::lang.field.gateway_currency',
+                'tab'   => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                'type'  => 'text',
+                'span'  => 'right',
             ],
         ]);
-        
+
         $this->addGatewayPropertyFields($obWidget->model, $obWidget);
     }
 
     /**
      * Add gateway property list
-     * @param PaymentMethod $obPaymentMethod
+     * @param PaymentMethod         $obPaymentMethod
      * @param \Backend\Widgets\Form $obWidget
      */
     protected function addGatewayPropertyFields($obPaymentMethod, $obWidget)
     {
-        if(empty($obPaymentMethod) || empty($obPaymentMethod->gateway_id) || empty($obWidget)) {
+        if (empty($obPaymentMethod) || empty($obPaymentMethod->gateway_id) || empty($obWidget)) {
             return;
         }
 
+        //Create gateway object
         $obGateway = Omnipay::create($obPaymentMethod->gateway_id);
-        if(empty($obGateway)) {
+        if (empty($obGateway)) {
             return;
         }
-        
+
+        //Get default property list for gateway
         $arPropertyList = $obGateway->getDefaultParameters();
-        if(empty($arPropertyList)) {
+        if (empty($arPropertyList)) {
             return;
         }
-        
-        foreach($arPropertyList as $sPropertyName => $arValueList) {
-            
-            if(empty($sPropertyName)) {
+
+        //Process property list  for gateway
+        foreach ($arPropertyList as $sPropertyName => $arValueList) {
+            if (empty($sPropertyName)) {
                 continue;
             }
-            
-            if(is_array($arValueList)) {
 
+            if (is_array($arValueList)) {
                 $obWidget->addTabFields([
                     'gateway_property['.$sPropertyName.']' => [
-                        'label'       => $sPropertyName,
-                        'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                        'type'        => 'dropdown',
-                        'span'        => 'left',
-                        'options'     => $arValueList,
+                        'label'   => $sPropertyName,
+                        'tab'     => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                        'type'    => 'dropdown',
+                        'span'    => 'left',
+                        'options' => $arValueList,
                     ],
                 ]);
-            } else if(is_bool($arValueList)) {
-
+            } elseif (is_bool($arValueList)) {
                 $obWidget->addTabFields([
-                    'gateway_property[' . $sPropertyName . ']' => [
+                    'gateway_property['.$sPropertyName.']' => [
                         'label'   => $sPropertyName,
                         'tab'     => 'lovata.omnipayshopaholic::lang.tab.gateway',
                         'type'    => 'checkbox',
@@ -140,9 +140,8 @@ class ExtendFieldHandler
                     ],
                 ]);
             } else {
-
                 $obWidget->addTabFields([
-                    'gateway_property[' . $sPropertyName . ']' => [
+                    'gateway_property['.$sPropertyName.']' => [
                         'label' => $sPropertyName,
                         'tab'   => 'lovata.omnipayshopaholic::lang.tab.gateway',
                         'type'  => 'text',
