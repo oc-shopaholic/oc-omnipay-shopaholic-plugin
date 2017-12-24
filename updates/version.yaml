@@ -2,3 +2,5 @@
     - 'Initialize plugin.'
     - update_table_orders.php
     - update_table_payment_methods.php
+1.0.1:
+    - 'Fix settings in plugin.yaml'
