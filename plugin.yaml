@@ -1,6 +1,6 @@
 plugin:
-    name: 'lovata.toolbox::lang.plugin.name'
-    description: 'lovata.toolbox::lang.plugin.description'
+    name: 'lovata.omnipayshopaholic::lang.plugin.name'
+    description: 'lovata.omnipayshopaholic::lang.plugin.description'
     author: Lovata
-    icon: oc-icon-star
-    homepage: 'https://github.com/lovata/oc-toolbox-plugin'
+    icon: oc-icon-credit-card
+    homepage: 'https://github.com/lovata/oc-omnipay-shopaholic-pluginoc'
