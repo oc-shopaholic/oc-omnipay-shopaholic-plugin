@@ -11,9 +11,8 @@ class OrderModelHandler
 {
     /**
      * Add listeners
-     * @param \Illuminate\Events\Dispatcher $obEvent
      */
-    public function subscribe($obEvent)
+    public function subscribe()
     {
         Order::extend(function ($obModel) {
             /** @var Order $obModel*/

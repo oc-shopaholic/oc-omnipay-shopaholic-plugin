@@ -1,6 +1,5 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Event;
 
-use Cms\Classes\Page;
 use Omnipay\Omnipay;
 use Lovata\OrdersShopaholic\Models\Status;
 use Lovata\OrdersShopaholic\Models\PaymentMethod;
