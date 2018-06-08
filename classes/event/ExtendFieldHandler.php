@@ -30,7 +30,7 @@ class ExtendFieldHandler
     protected function extendPaymentMethodFields($obWidget)
     {
         // Only for the Settings controller
-        if (!$obWidget->getController() instanceof PaymentMethods) {
+        if (!$obWidget->getController() instanceof PaymentMethods || $obWidget->isNested) {
             return;
         }
 
