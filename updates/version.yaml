@@ -4,3 +4,5 @@
     - update_table_payment_methods.php
 1.0.1:
     - 'Fix settings in plugin.yaml'
+1.1.0:
+    - 'Update logic for price field of Order model. Requires Toolbox plugin version 1.10.0 and later.'

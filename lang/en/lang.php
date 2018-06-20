@@ -6,7 +6,6 @@
     'tab'            => [
         'gateway' => 'Payment gateway',
     ],
-    'message'        => [],
     'field' => [
         'gateway_id'       => 'Payment gateway',
         'gateway_currency' => 'Gateway currency',

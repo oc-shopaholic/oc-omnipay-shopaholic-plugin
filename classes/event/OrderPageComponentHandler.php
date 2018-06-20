@@ -13,9 +13,8 @@ class OrderPageComponentHandler
 {
     /**
      * Add listeners
-     * @param \Illuminate\Events\Dispatcher $obEvent
      */
-    public function subscribe($obEvent)
+    public function subscribe()
     {
         OrderPage::extend(function ($obComponent) {
             /** @var OrderPage $obComponent */
@@ -71,7 +70,7 @@ class OrderPageComponentHandler
             $obCreditCart = new CreditCard($arPaymentOrderData);
 
             $arGatewayData = [
-                'amount'   => $obOrder->getTotalPriceValue(),
+                'amount'   => $obOrder->total_price_value,
                 'currency' => $obPaymentMethod->gateway_currency,
                 'card'     => $obCreditCart,
             ];

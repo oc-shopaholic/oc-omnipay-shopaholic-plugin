@@ -1,6 +1,5 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Event;
 
-use Cms\Classes\Page;
 use Omnipay\Omnipay;
 use Lovata\OrdersShopaholic\Models\Status;
 use Lovata\OrdersShopaholic\Models\PaymentMethod;
@@ -31,7 +30,7 @@ class ExtendFieldHandler
     protected function extendPaymentMethodFields($obWidget)
     {
         // Only for the Settings controller
-        if (!$obWidget->getController() instanceof PaymentMethods) {
+        if (!$obWidget->getController() instanceof PaymentMethods || $obWidget->isNested) {
             return;
         }
 
