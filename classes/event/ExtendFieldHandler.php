@@ -125,7 +125,7 @@ class ExtendFieldHandler
                         'tab'     => 'lovata.omnipayshopaholic::lang.tab.gateway',
                         'type'    => 'dropdown',
                         'span'    => 'left',
-                        'options' => $arValueList,
+                        'options' => $this->prepareValueList($arValueList),
                     ],
                 ]);
             } elseif (is_bool($arValueList)) {
@@ -149,5 +149,28 @@ class ExtendFieldHandler
                 ]);
             }
         }
+    }
+
+    /**
+     * Prepare value list for backend field
+     * @param array $arValueList
+     * @return array
+     */
+    protected function prepareValueList($arValueList)
+    {
+        if (empty($arValueList) || !is_array($arValueList)) {
+            return [];
+        }
+
+        if ($arValueList !== array_values($arValueList)) {
+            return $arValueList;
+        }
+
+        $arResult = [];
+        foreach ($arValueList as $sValue) {
+            $arResult[$sValue] = $sValue;
+        }
+
+        return $arResult;
     }
 }

@@ -6,3 +6,5 @@
     - 'Fix settings in plugin.yaml'
 1.1.0:
     - 'Update logic for price field of Order model. Requires Toolbox plugin version 1.10.0 and later.'
+1.1.1:
+    - 'Fix: Saving gateway parameter values as string values of arrays.'
