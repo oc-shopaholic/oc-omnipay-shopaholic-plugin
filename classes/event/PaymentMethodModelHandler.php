@@ -1,6 +1,8 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Event;
 
+use Event;
 use Lovata\OrdersShopaholic\Models\PaymentMethod;
+use Lovata\OmnipayShopaholic\Classes\Helper\PaymentGateway;
 
 /**
  * Class PaymentMethodModelHandler
@@ -11,47 +13,50 @@ class PaymentMethodModelHandler
 {
     /**
      * Add listeners
+     * @param \Illuminate\Events\Dispatcher $obEvent
      */
-    public function subscribe()
+    public function subscribe($obEvent)
     {
-        PaymentMethod::extend(function ($obModel) {
-            /** @var PaymentMethod $obModel */
-            $this->extendModel($obModel);
-        });
-    }
+        PaymentMethod::extend(function ($obElement) {
+            /** @var PaymentMethod $obElement */
 
-    /**
-     * Extend PaymentMethod model
-     * @param PaymentMethod $obModel
-     */
-    protected function extendModel($obModel)
-    {
-        $obModel->addFillable([
-            'gateway_id',
-            'gateway_currency',
-            'gateway_property',
-            'before_status_id',
-            'after_status_id',
-        ]);
-
-        $obModel->addJsonable('gateway_property');
-
-        $obModel->addDynamicMethod('setBeforeStatusIdAttribute', function ($sValue) use ($obModel) {
-
-            if (empty($sValue)) {
-                $sValue = 0;
+            //Get gateway list
+            $arGatewayList = PaymentGateway::getOmnipayGatewayList();
+            if (empty($arGatewayList)) {
+                return;
             }
 
-            $obModel->attributes['before_status_id'] = $sValue;
+            foreach ($arGatewayList as $sGatewayCode) {
+
+                $arEventData = Event::fire(PaymentGateway::EVENT_GET_PAYMENT_GATEWAY_CLASS, $sGatewayCode);
+                if (!empty($arEventData)) {
+                    foreach ($arEventData as $sPaymentGatewayClass) {
+                        if (empty($sPaymentGatewayClass) || !class_exists($sPaymentGatewayClass)) {
+                            continue;
+                        }
+
+                        $obElement->addGatewayClass($sGatewayCode, $sPaymentGatewayClass);
+                        break;
+                    }
+                }
+
+                $obElement->addGatewayClass($sGatewayCode, PaymentGateway::class);
+            }
         });
 
-        $obModel->addDynamicMethod('setAfterStatusIdAttribute', function ($sValue) use ($obModel) {
 
-            if (empty($sValue)) {
-                $sValue = 0;
+        $obEvent->listen(PaymentMethod::EVENT_GET_GATEWAY_LIST, function () {
+            $arGatewayList = PaymentGateway::getOmnipayGatewayList();
+            if (empty($arGatewayList)) {
+                return [];
             }
 
-            $obModel->attributes['after_status_id'] = $sValue;
+            $arResult = [];
+            foreach ($arGatewayList as $sGatewayCode) {
+                $arResult[$sGatewayCode] = $sGatewayCode;
+            }
+
+            return $arResult;
         });
     }
 }

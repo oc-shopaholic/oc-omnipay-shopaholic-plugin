@@ -1,10 +1,10 @@
 1.0.0:
     - 'Initialize plugin.'
-    - update_table_orders.php
-    - update_table_payment_methods.php
 1.0.1:
     - 'Fix settings in plugin.yaml'
 1.1.0:
     - 'Update logic for price field of Order model. Requires Toolbox plugin version 1.10.0 and later.'
 1.1.1:
     - 'Fix: Saving gateway parameter values as string values of arrays.'
+1.2.0:
+    - 'Improved integration with payment gateways. Requires Orders for Shopaholic plugin version 1.7.0 and later.'
