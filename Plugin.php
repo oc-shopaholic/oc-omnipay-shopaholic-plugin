@@ -5,7 +5,6 @@ use System\Classes\PluginBase;
 
 use Lovata\OmnipayShopaholic\Classes\Event\ExtendFieldHandler;
 use Lovata\OmnipayShopaholic\Classes\Event\PaymentMethodModelHandler;
-use Lovata\OmnipayShopaholic\Classes\Event\OrderPageComponentHandler;
 
 /**
  * Class Plugin
@@ -31,6 +30,5 @@ class Plugin extends PluginBase
     {
         Event::subscribe(ExtendFieldHandler::class);
         Event::subscribe(PaymentMethodModelHandler::class);
-        Event::subscribe(OrderPageComponentHandler::class);
     }
 }
