@@ -1,7 +1,11 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Event;
 
+use Lang;
 use Omnipay\Omnipay;
-use Lovata\OrdersShopaholic\Models\Status;
+
+use Lovata\OmnipayShopaholic\Classes\Helper\PaymentGateway;
+
+use Lovata\OrdersShopaholic\Models\OrderProperty;
 use Lovata\OrdersShopaholic\Models\PaymentMethod;
 use Lovata\OrdersShopaholic\Controllers\PaymentMethods;
 
@@ -35,58 +39,18 @@ class ExtendFieldHandler
         }
 
         // Only for the Settings model
-        if (!$obWidget->model instanceof PaymentMethod) {
+        if (!$obWidget->model instanceof PaymentMethod || empty($obWidget->model->gateway_id) || !class_exists(Omnipay::class)) {
             return;
         }
 
         //Get payment gateway list
-        $arPaymentGatewayList = [];
-
-        $arGatewayList = Omnipay::getFactory()->find();
-        if (!empty($arGatewayList)) {
-            foreach ($arGatewayList as $sGatewayName) {
-                $arPaymentGatewayList[$sGatewayName] = $sGatewayName;
-            }
+        $arGatewayList = PaymentGateway::getOmnipayGatewayList();
+        if (empty($arGatewayList) || !in_array($obWidget->model->gateway_id, $arGatewayList)) {
+            return;
         }
 
-        //Get order status list
-        $arStatusList = Status::lists('name', 'id');
-
-        // Add an extra birthday field
-        $obWidget->addTabFields([
-            'before_status_id' => [
-                'label'       => 'lovata.omnipayshopaholic::lang.field.before_status_id',
-                'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                'type'        => 'dropdown',
-                'span'        => 'left',
-                'options'     => $arStatusList,
-                'emptyOption' => 'lovata.toolbox::lang.field.empty',
-            ],
-            'after_status_id'  => [
-                'label'       => 'lovata.omnipayshopaholic::lang.field.after_status_id',
-                'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                'type'        => 'dropdown',
-                'span'        => 'right',
-                'options'     => $arStatusList,
-                'emptyOption' => 'lovata.toolbox::lang.field.empty',
-            ],
-            'gateway_id'       => [
-                'label'       => 'lovata.omnipayshopaholic::lang.field.gateway_id',
-                'tab'         => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                'type'        => 'dropdown',
-                'span'        => 'left',
-                'options'     => $arPaymentGatewayList,
-                'emptyOption' => 'lovata.toolbox::lang.field.empty',
-            ],
-            'gateway_currency' => [
-                'label' => 'lovata.omnipayshopaholic::lang.field.gateway_currency',
-                'tab'   => 'lovata.omnipayshopaholic::lang.tab.gateway',
-                'type'  => 'text',
-                'span'  => 'right',
-            ],
-        ]);
-
         $this->addGatewayPropertyFields($obWidget->model, $obWidget);
+        $this->addUserFieldList($obWidget);
     }
 
     /**
@@ -96,10 +60,6 @@ class ExtendFieldHandler
      */
     protected function addGatewayPropertyFields($obPaymentMethod, $obWidget)
     {
-        if (empty($obPaymentMethod) || empty($obPaymentMethod->gateway_id) || empty($obWidget)) {
-            return;
-        }
-
         //Create gateway object
         $obGateway = Omnipay::create($obPaymentMethod->gateway_id);
         if (empty($obGateway)) {
@@ -122,7 +82,7 @@ class ExtendFieldHandler
                 $obWidget->addTabFields([
                     'gateway_property['.$sPropertyName.']' => [
                         'label'   => $sPropertyName,
-                        'tab'     => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                        'tab'     => 'lovata.ordersshopaholic::lang.tab.gateway',
                         'type'    => 'dropdown',
                         'span'    => 'left',
                         'options' => $this->prepareValueList($arValueList),
@@ -132,7 +92,7 @@ class ExtendFieldHandler
                 $obWidget->addTabFields([
                     'gateway_property['.$sPropertyName.']' => [
                         'label'   => $sPropertyName,
-                        'tab'     => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                        'tab'     => 'lovata.ordersshopaholic::lang.tab.gateway',
                         'type'    => 'checkbox',
                         'default' => $arValueList,
                         'span'    => 'left',
@@ -142,7 +102,7 @@ class ExtendFieldHandler
                 $obWidget->addTabFields([
                     'gateway_property['.$sPropertyName.']' => [
                         'label' => $sPropertyName,
-                        'tab'   => 'lovata.omnipayshopaholic::lang.tab.gateway',
+                        'tab'   => 'lovata.ordersshopaholic::lang.tab.gateway',
                         'type'  => 'text',
                         'span'  => 'left',
                     ],
@@ -170,6 +130,94 @@ class ExtendFieldHandler
         foreach ($arValueList as $sValue) {
             $arResult[$sValue] = $sValue;
         }
+
+        return $arResult;
+    }
+
+    /**
+     * Add user fields
+     * @param \Backend\Widgets\Form $obWidget
+     */
+    protected function addUserFieldList($obWidget)
+    {
+        $arPropertyList = $this->getPropertyOptions();
+        if (empty($arPropertyList)) {
+            return;
+        }
+
+        $sSpan = 'left';
+        $arFieldList = [];
+        $arUserFieldList = [
+            'firstName',
+            'lastName',
+            'number',
+            'expiryMonth',
+            'expiryYear',
+            'startMonth',
+            'startYear',
+            'cvv',
+            'billingAddress1',
+            'billingAddress2',
+            'billingCity',
+            'billingPostcode',
+            'billingState',
+            'billingCountry',
+            'billingPhone',
+            'shippingAddress1',
+            'shippingAddress2',
+            'shippingCity',
+            'shippingPostcode',
+            'shippingState',
+            'shippingCountry',
+            'shippingPhone',
+            'company',
+            'email',
+        ];
+
+        foreach ($arUserFieldList as $sFieldName) {
+            $arFieldList['gateway_property['.$sFieldName.']'] = $this->getUserFieldData($sFieldName, $sSpan, $arPropertyList);
+            $sSpan = $sSpan == 'left' ? 'right' : 'left';
+        }
+
+        $obWidget->addTabFields($arFieldList);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getPropertyOptions()
+    {
+        $arResult = (array) OrderProperty::active()->lists('name', 'code');
+        if (empty($arResult)) {
+            return [];
+        }
+
+        foreach ($arResult as &$sName) {
+            $sName = Lang::get($sName);
+        }
+
+        return $arResult;
+    }
+
+    /**
+     * Get user field config
+     * @param string $sField
+     * @param string $sSpan
+     * @param array  $arPropertyList
+     * @return array
+     */
+    protected function getUserFieldData($sField, $sSpan, $arPropertyList)
+    {
+        $sLabel = Lang::get('lovata.ordersshopaholic::lang.field.gateway_field_value', ['field' => $sField]);
+
+        $arResult = [
+            'label'       => $sLabel,
+            'tab'         => 'lovata.ordersshopaholic::lang.tab.gateway',
+            'emptyOption' => 'lovata.toolbox::lang.field.empty',
+            'type'        => 'dropdown',
+            'span'        => $sSpan,
+            'options'     => $arPropertyList,
+        ];
 
         return $arResult;
     }
