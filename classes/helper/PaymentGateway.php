@@ -15,8 +15,8 @@ use Lovata\OrdersShopaholic\Classes\Helper\AbstractPaymentGateway;
 class PaymentGateway extends AbstractPaymentGateway
 {
     const EVENT_GET_PAYMENT_GATEWAY_CLASS = 'shopaholic.payment_method.omnipay.gateway.class';
-    const EVENT_GET_PAYMENT_GATEWAY_CANCEL_URL = 'shopaholic.payment_method.omnipay.gateway.return_url';
-    const EVENT_GET_PAYMENT_GATEWAY_RETURN_URL = 'shopaholic.payment_method.omnipay.gateway.cancel_url';
+    const EVENT_GET_PAYMENT_GATEWAY_CANCEL_URL = 'shopaholic.payment_method.omnipay.gateway.cancel_url';
+    const EVENT_GET_PAYMENT_GATEWAY_RETURN_URL = 'shopaholic.payment_method.omnipay.gateway.return_url';
     const EVENT_GET_PAYMENT_GATEWAY_PURCHASE_DATA = 'shopaholic.payment_method.omnipay.gateway.purchase_data';
 
     /** @var \Omnipay\Common\GatewayInterface */
