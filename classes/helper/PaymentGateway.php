@@ -65,7 +65,7 @@ class PaymentGateway extends AbstractPaymentGateway
             return '';
         }
 
-        return $this->obResponse->getRedirectUrl();
+        return (string) $this->obResponse->getRedirectUrl();
     }
 
     /**
@@ -87,7 +87,7 @@ class PaymentGateway extends AbstractPaymentGateway
             return (string) $this->sResponseMessage;
         }
 
-        return $this->obResponse->getMessage();
+        return (string) $this->obResponse->getMessage();
     }
 
     /**
@@ -247,11 +247,11 @@ class PaymentGateway extends AbstractPaymentGateway
             $this->setSuccessStatus();
         } elseif ($this->bIsRedirect) {
             $this->setWaitPaymentStatus();
+            $arPaymentResponse['redirect_url'] = $this->obResponse->getRedirectUrl();
         }
 
         $arPaymentResponse = (array) $this->obOrder->payment_response;
         $arPaymentResponse['response'] = (array) $this->obResponse->getData();
-        $arPaymentResponsep['redirect_url'] = $this->obResponse->getRedirectUrl();
 
         $this->obOrder->payment_response = $arPaymentResponse;
         $this->obOrder->payment_token = $this->obResponse->getTransactionReference();
