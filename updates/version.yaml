@@ -8,3 +8,5 @@
     - 'Fix: Saving gateway parameter values as string values of arrays.'
 1.2.0:
     - '!!!Improved integration with payment gateways. Request to payment gateway is automatically send after order was created. Remove getPaymentGateway() method from OrderPage component. Requires Orders for Shopaholic plugin version 1.7.0 and later.'
+1.3.0:
+    - 'Added processing of "return", "cancel" URLs. Added new events.'

@@ -1,6 +1,7 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Helper;
 
 use Event;
+use Redirect;
 use Validator;
 use Omnipay\Omnipay;
 use Omnipay\Common\CreditCard;
@@ -14,10 +15,18 @@ use Lovata\OrdersShopaholic\Classes\Helper\AbstractPaymentGateway;
  */
 class PaymentGateway extends AbstractPaymentGateway
 {
+    const SUCCESS_RETURN_URL = 'shopaholic/omnipay/paypal/success/';
+    const CANCEL_RETURN_URL = 'shopaholic/omnipay/paypal/cancel/';
+
     const EVENT_GET_PAYMENT_GATEWAY_CLASS = 'shopaholic.payment_method.omnipay.gateway.class';
     const EVENT_GET_PAYMENT_GATEWAY_CANCEL_URL = 'shopaholic.payment_method.omnipay.gateway.cancel_url';
     const EVENT_GET_PAYMENT_GATEWAY_RETURN_URL = 'shopaholic.payment_method.omnipay.gateway.return_url';
     const EVENT_GET_PAYMENT_GATEWAY_PURCHASE_DATA = 'shopaholic.payment_method.omnipay.gateway.purchase_data';
+    const EVENT_GET_PAYMENT_GATEWAY_CARD_DATA = 'shopaholic.payment_method.omnipay.gateway.card_data';
+
+    const EVENT_PROCESS_RETURN_URL = 'shopaholic.payment_method.omnipay.gateway.process_return_url';
+    const EVENT_PROCESS_CANCEL_URL = 'shopaholic.payment_method.omnipay.gateway.process_cancel_url';
+    const EVENT_PROCESS_NOTIFY_URL = 'shopaholic.payment_method.omnipay.gateway.process_notify_url';
 
     /** @var \Omnipay\Common\GatewayInterface */
     protected $obGateway;
@@ -25,6 +34,8 @@ class PaymentGateway extends AbstractPaymentGateway
     /** @var \Omnipay\Common\Message\ResponseInterface */
     protected $obResponse;
     protected $sResponseMessage;
+
+    protected $arCardData = [];
 
     /**
      * Get omnipay gateway list
@@ -54,7 +65,7 @@ class PaymentGateway extends AbstractPaymentGateway
             return '';
         }
 
-        return $this->obResponse->getRedirectUrl();
+        return (string) $this->obResponse->getRedirectUrl();
     }
 
     /**
@@ -76,7 +87,61 @@ class PaymentGateway extends AbstractPaymentGateway
             return (string) $this->sResponseMessage;
         }
 
-        return $this->obResponse->getMessage();
+        return (string) $this->obResponse->getMessage();
+    }
+
+    /**
+     * Process success request
+     * @param string $sSecretKey
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processSuccessRequest($sSecretKey)
+    {
+        $this->initOrderObject($sSecretKey);
+        if (empty($this->obOrder) || empty($this->obPaymentMethod)) {
+            return Redirect::to('/');
+        }
+
+        //Set success status in order
+        $this->setSuccessStatus();
+
+        Event::fire(self::EVENT_PROCESS_RETURN_URL, [
+            $this->obOrder,
+            $this->obPaymentMethod,
+        ]);
+
+        //Get redirect URL
+        $sRedirectURL = $this->getReturnURL();
+
+        return Redirect::to($sRedirectURL);
+    }
+
+    /**
+     * Process cancel request
+     * @param string $sSecretKey
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processCancelRequest($sSecretKey)
+    {
+        //Init order object
+        $this->initOrderObject($sSecretKey);
+        if (empty($this->obOrder) || empty($this->obPaymentMethod)) {
+            return Redirect::to('/');
+        }
+
+        //Set cancel status in order
+        $this->setCancelStatus();
+
+        //Fire event
+        Event::fire(self::EVENT_PROCESS_CANCEL_URL, [
+            $this->obOrder,
+            $this->obPaymentMethod,
+        ]);
+
+        //Get redirect URL
+        $sRedirectURL = $this->getCancelURL();
+
+        return Redirect::to($sRedirectURL);
     }
 
     /**
@@ -96,12 +161,13 @@ class PaymentGateway extends AbstractPaymentGateway
             'currency'      => $this->obPaymentMethod->gateway_currency,
             'description'   => $this->obOrder->order_number,
             'transactionId' => $this->obOrder->transaction_id,
-            'returnUrl'     => $this->getReturnURL(),
-            'cancelUrl'     => $this->getCancelURL(),
+            'token'         => $this->obOrder->payment_token,
+            'returnUrl'     => url(self::SUCCESS_RETURN_URL.$this->obOrder->secret_key),
+            'cancelUrl'     => url(self::CANCEL_RETURN_URL.$this->obOrder->secret_key),
         ];
 
         //Get default property list for gateway
-       $arPropertyList = $this->obGateway->getDefaultParameters();
+        $arPropertyList = $this->obGateway->getDefaultParameters();
         if (empty($arPropertyList)) {
             return;
         }
@@ -138,8 +204,28 @@ class PaymentGateway extends AbstractPaymentGateway
      */
     protected function sendPurchaseData()
     {
+        $arPaymentData = (array) $this->obOrder->payment_data;
+        $arPaymentData['request'] = $this->arPurchaseData;
+        $arPaymentData['request']['card'] = $this->arCardData;
+
+        $this->obOrder->payment_data = $arPaymentData;
+        $this->obOrder->save();
+
         try {
             $this->obResponse = $this->obGateway->purchase($this->arPurchaseData)->send();
+        } catch (\Exception $obException) {
+            $this->sResponseMessage = $obException->getMessage();
+            return;
+        }
+    }
+
+    /**
+     * Send completePurchase request to payment gateway
+     */
+    protected function sendCompletePurchaseData()
+    {
+        try {
+            $this->obResponse = $this->obGateway->completePurchase($this->arPurchaseData)->send();
         } catch (\Exception $obException) {
             $this->sResponseMessage = $obException->getMessage();
             return;
@@ -157,9 +243,20 @@ class PaymentGateway extends AbstractPaymentGateway
 
         $this->bIsRedirect = $this->obResponse->isRedirect();
         $this->bIsSuccessful = $this->obResponse->isSuccessful();
-        if ($this->bIsRedirect || $this->bIsSuccessful) {
+        if ($this->bIsSuccessful && !$this->bIsRedirect) {
+            $this->setSuccessStatus();
+        } elseif ($this->bIsRedirect) {
             $this->setWaitPaymentStatus();
+            $arPaymentResponse['redirect_url'] = $this->obResponse->getRedirectUrl();
         }
+
+        $arPaymentResponse = (array) $this->obOrder->payment_response;
+        $arPaymentResponse['response'] = (array) $this->obResponse->getData();
+
+        $this->obOrder->payment_response = $arPaymentResponse;
+        $this->obOrder->payment_token = $this->obResponse->getTransactionReference();
+        $this->obOrder->transaction_id = $this->obResponse->getTransactionId();
+        $this->obOrder->save();
     }
 
     /**
@@ -171,8 +268,6 @@ class PaymentGateway extends AbstractPaymentGateway
         if (empty($this->obOrder) || empty($this->obPaymentMethod)) {
             return null;
         }
-
-        $arCardData = [];
 
         //Fill user fields form order properties
         $arUserFieldList = [
@@ -211,14 +306,15 @@ class PaymentGateway extends AbstractPaymentGateway
                 continue;
             }
 
-            $arCardData[$sFieldName] = $sValue;
+            $this->arCardData[$sFieldName] = $sValue;
         }
 
-        if (empty($arCardData)) {
+        $this->extendCardData();
+        if (empty($this->arCardData)) {
             return null;
         }
 
-        $obCreditCard = new CreditCard($arCardData);
+        $obCreditCard = new CreditCard($this->arCardData);
 
         return $obCreditCard;
     }
@@ -252,7 +348,6 @@ class PaymentGateway extends AbstractPaymentGateway
         $arEventDataList = Event::fire($sEventName, [
             $this->obOrder,
             $this->obPaymentMethod,
-            $this->arPurchaseData,
         ]);
         if (empty($arEventDataList)) {
             return url('/');
@@ -291,6 +386,33 @@ class PaymentGateway extends AbstractPaymentGateway
 
             foreach ($arEventData as $sField => $sValue) {
                 $this->arPurchaseData[$sField] = $sValue;
+            }
+        }
+    }
+
+    /**
+     * Fire event and extend card data
+     */
+    protected function extendCardData()
+    {
+        //Fire event
+        $arEventDataList = Event::fire(self::EVENT_GET_PAYMENT_GATEWAY_CARD_DATA, [
+            $this->obOrder,
+            $this->obPaymentMethod,
+            $this->arCardData,
+        ]);
+        if (empty($arEventDataList)) {
+            return;
+        }
+
+        //Process event data
+        foreach ($arEventDataList as $arEventData) {
+            if (empty($arEventData) || !is_array($arEventData)) {
+                continue;
+            }
+
+            foreach ($arEventData as $sField => $sValue) {
+                $this->arCardData[$sField] = $sValue;
             }
         }
     }
