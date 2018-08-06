@@ -24,9 +24,9 @@ class PaymentGateway extends AbstractPaymentGateway
     const EVENT_GET_PAYMENT_GATEWAY_PURCHASE_DATA = 'shopaholic.payment_method.omnipay.gateway.purchase_data';
     const EVENT_GET_PAYMENT_GATEWAY_CARD_DATA = 'shopaholic.payment_method.omnipay.gateway.card_data';
 
-    const EVENT_PROCESS_RETURN_URL = 'shopaholic.payment_method.omnipay.gateway.return_url';
-    const EVENT_PROCESS_CANCEL_URL = 'shopaholic.payment_method.omnipay.gateway.cancel_url';
-    const EVENT_PROCESS_NOTIFY_URL = 'shopaholic.payment_method.omnipay.gateway.notify_url';
+    const EVENT_PROCESS_RETURN_URL = 'shopaholic.payment_method.omnipay.gateway.process_return_url';
+    const EVENT_PROCESS_CANCEL_URL = 'shopaholic.payment_method.omnipay.gateway.process_cancel_url';
+    const EVENT_PROCESS_NOTIFY_URL = 'shopaholic.payment_method.omnipay.gateway.process_notify_url';
 
     /** @var \Omnipay\Common\GatewayInterface */
     protected $obGateway;
