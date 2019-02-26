@@ -1,6 +1,6 @@
 <?php return [
     'plugin'         => [
-        'name'        => 'Omnipay for Shopaholic',
-        'description' => 'Integration with package omnipay',
+        'name'        => 'Omnipay Shopaholic',
+        'description' => 'Integracija su Omnipay paketu',
     ],
 ];
