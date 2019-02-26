@@ -157,7 +157,7 @@ class PaymentGateway extends AbstractPaymentGateway
 
         $this->arPurchaseData = [
             'card'          => $this->getCreditCardObject(),
-            'amount'        => $this->obOrder->total_price_value,
+            'amount'        => $this->obOrder->total_price_data->price_with_tax_value,
             'currency'      => $this->obPaymentMethod->gateway_currency,
             'description'   => $this->obOrder->order_number,
             'transactionId' => $this->obOrder->transaction_id,
