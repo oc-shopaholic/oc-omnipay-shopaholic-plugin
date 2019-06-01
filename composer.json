@@ -7,6 +7,7 @@
     "keywords": ["omnipay", "shopaholic", "lovata", "october", "cms"],
     "require": {
         "php": ">=7.0",
-        "lovata/oc-ordersshopaholic-plugin": "~1.22"
+        "lovata/oc-ordersshopaholic-plugin": "~1.22",
+        "ignited/laravel-omnipay": "2.*"
     }
 }
