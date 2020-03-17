@@ -12,3 +12,5 @@
     - 'Added processing of "return", "cancel" URLs. Added new events.'
 1.4.0:
     - 'Updated payment gateway data, after adding taxes in main plugin.'
+1.5.0:
+    - 'Added processing "payment_gateway_purchase_data" and "payment_gateway_card_data" fields form request.'

@@ -1,6 +1,7 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Helper;
 
 use Event;
+use Illuminate\Support\Facades\Input;
 use Redirect;
 use Validator;
 use Omnipay\Omnipay;
@@ -368,6 +369,14 @@ class PaymentGateway extends AbstractPaymentGateway
      */
     protected function extendPurchaseData()
     {
+        $arPaymentGateWayPurchaseData = Input::get('payment_gateway_purchase_data');
+
+        if (empty($arPaymentGateWayPurchaseData) || !is_array($arPaymentGateWayPurchaseData)) {
+            $arPaymentGateWayPurchaseData = [];
+        }
+
+        $this->arPurchaseData = array_merge($this->arPurchaseData, $arPaymentGateWayPurchaseData);
+
         //Fire event
         $arEventDataList = Event::fire(self::EVENT_GET_PAYMENT_GATEWAY_PURCHASE_DATA, [
             $this->obOrder,
@@ -395,6 +404,14 @@ class PaymentGateway extends AbstractPaymentGateway
      */
     protected function extendCardData()
     {
+        $arPaymentGateWayCardData = Input::get('payment_gateway_card_data');
+
+        if (empty($arPaymentGateWayCardData) || !is_array($arPaymentGateWayCardData)) {
+            $arPaymentGateWayCardData = [];
+        }
+
+        $this->arCardData = array_merge($this->arCardData, $arPaymentGateWayCardData);
+
         //Fire event
         $arEventDataList = Event::fire(self::EVENT_GET_PAYMENT_GATEWAY_CARD_DATA, [
             $this->obOrder,
