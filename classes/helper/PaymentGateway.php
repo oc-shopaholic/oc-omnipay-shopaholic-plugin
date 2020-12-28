@@ -48,7 +48,16 @@ class PaymentGateway extends AbstractPaymentGateway
             return [];
         }
 
-        $arGatewayList = Omnipay::getFactory()->find();
+        $obOmnipayFactory = Omnipay::getFactory();
+
+        if (method_exists($obOmnipayFactory, 'find')) {
+            $arGatewayList = Omnipay::getFactory()->find();
+        } elseIf (method_exists($obOmnipayFactory, 'all')) {
+            $arGatewayList = Omnipay::getFactory()->all();
+        } else {
+            return [];
+        }
+
         if (empty($arGatewayList) || !is_array($arGatewayList)) {
             return [];
         }
