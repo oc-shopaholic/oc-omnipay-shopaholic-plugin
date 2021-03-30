@@ -1,0 +1,13 @@
+{
+    "name": "lovata/oc-omnipayshopaholic-plugin",
+    "type": "october-plugin",
+    "description": "Payment gateways extension for Shopaholic plugin",
+    "license": "GPL-3.0-only",
+    "homepage": "https://github.com/oc-shopaholic/oc-omnipay-shopaholic-plugin",
+    "keywords": ["omnipay", "shopaholic", "lovata", "october", "cms"],
+    "require": {
+        "php": ">=7.0",
+        "lovata/oc-ordersshopaholic-plugin": "~1.22",
+        "ignited/laravel-omnipay": "2.*"
+    }
+}
