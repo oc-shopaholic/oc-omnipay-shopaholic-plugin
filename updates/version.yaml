@@ -16,3 +16,5 @@
     - 'Added processing "payment_gateway_purchase_data" and "payment_gateway_card_data" fields form request.'
 1.6.0:
     - 'Added support for omnipay v3. Thanks for contribution Sebastiaan Kloos.'
+1.7.0:
+    - 'Added composer.json to plugin'

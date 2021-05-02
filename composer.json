@@ -1,0 +1,8 @@
+{
+    "name": "lovata/omnipayshopaholic-plugin",
+    "type": "october-plugin",
+    "description": "Added integration with payment gateway from omnipay package",
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}
