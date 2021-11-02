@@ -18,3 +18,5 @@
     - 'Added support for omnipay v3. Thanks for contribution Sebastiaan Kloos.'
 1.7.0:
     - 'Added composer.json to plugin'
+1.7.1:
+    - 'Fixed error with Input class.'
