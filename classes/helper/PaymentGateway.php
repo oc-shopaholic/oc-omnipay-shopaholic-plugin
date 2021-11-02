@@ -1,7 +1,7 @@
 <?php namespace Lovata\OmnipayShopaholic\Classes\Helper;
 
 use Event;
-use Illuminate\Support\Facades\Input;
+use Input;
 use Redirect;
 use Validator;
 use Omnipay\Omnipay;
