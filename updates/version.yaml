@@ -20,3 +20,5 @@
     - 'Added composer.json to plugin'
 1.7.1:
     - 'Fixed error with Input class.'
+1.7.2:
+    - 'Change lists method to pluck method. Thanks for contribution Nick Khaetsky.'
