@@ -187,7 +187,7 @@ class ExtendFieldHandler
      */
     protected function getPropertyOptions()
     {
-        $arResult = (array) OrderProperty::active()->lists('name', 'code');
+        $arResult = (array) OrderProperty::active()->pluck('name', 'code')->all();
         if (empty($arResult)) {
             return [];
         }
